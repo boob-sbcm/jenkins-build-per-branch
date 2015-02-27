@@ -20,6 +20,9 @@ class JenkinsJobManager {
 
     JenkinsApi jenkinsApi
     GitApi gitApi
+	
+	String deleteFolder
+	String deleteJobPrefix
 
     JenkinsJobManager(Map props) {
         for (property in props) {
@@ -75,6 +78,20 @@ class JenkinsJobManager {
         println "Deleting deprecated jobs:\n\t${deprecatedJobNames.join('\n\t')}"
         deprecatedJobNames.each { String jobName ->
             jenkinsApi.deleteJob(jobName)
+			if(deleteFolder && deleteJobPrefix){
+				if(jobName.startsWith(deleteJobPrefix)){
+					println "${jobName} might contain content that has to be deleted. Checking disk."
+					def folderName = jobName.replace(deleteJobPrefix, "")
+					def folderToDelete = new File(new File(deleteFolder), folderName);
+					println "Checking if folder ${folderToDelete} exists..."
+					if(folderToDelete.isDirectory()){
+						println "Success. Folder exist. Deleting folder."
+						if(!folderToDelete.deleteDir()){
+							throw new RuntimeException("Error deleting folder ${folderToDelete}")
+						}
+					}
+				}
+			}
         }
     }
 
