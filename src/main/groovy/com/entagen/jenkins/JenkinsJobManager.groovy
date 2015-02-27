@@ -78,6 +78,8 @@ class JenkinsJobManager {
         println "Deleting deprecated jobs:\n\t${deprecatedJobNames.join('\n\t')}"
         deprecatedJobNames.each { String jobName ->
             jenkinsApi.deleteJob(jobName)
+			println "Delete folder is: $deleteFolder"
+			println "Delete folder prefix is: $deletePrefix"
 			if(deleteFolder && deleteJobPrefix){
 				if(jobName.startsWith(deleteJobPrefix)){
 					println "${jobName} might contain content that has to be deleted. Checking disk."
